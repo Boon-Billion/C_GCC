@@ -95,8 +95,8 @@ int main(void) {
                 record_arr[record_len - 1] = record_arr[j];
             }
         }
-        //?????????.?#????
-        //,1,1,1,1,2
+
+
         record_arr = (int*)realloc(record_arr, (record_len + 1) * sizeof(int));
         record_arr[record_len] = 0;
 
