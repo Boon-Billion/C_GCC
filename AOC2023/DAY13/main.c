@@ -77,6 +77,7 @@ int get_horizental(char** input){
 
     for(int i = 0; i < vert_len - 1; i++){
         int offset = 0;
+        int count = 0;
         while(!strcmp(input[i - offset], input[i + 1 + offset])){                   
             if(i-offset == 0 || i+offset+1 == vert_len - 1){
                 return i + 1;
