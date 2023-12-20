@@ -4,7 +4,7 @@
 int get_vertical(char** input);
 int get_horizental(char** input);
 
-int debug = 0;
+
 FILE* file = NULL;
 char str_buffer[256];
 int main(void){
