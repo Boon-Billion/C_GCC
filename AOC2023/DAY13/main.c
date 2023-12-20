@@ -3,8 +3,9 @@
 #include <stdlib.h>
 int get_vertical(char** input);
 int get_horizental(char** input);
+int strcmpd(char* str1, char* str2);
 
-
+int debug = 0;
 FILE* file = NULL;
 char str_buffer[256];
 int main(void){
@@ -19,7 +20,7 @@ int main(void){
             line_len++;
             input = realloc(input, line_len * sizeof(char*));
             input[line_len - 1] = strdup(str_buffer);
-            printf("\t%s", str_buffer);
+            //printf("\t%s", str_buffer);
         }
         else{
             input = realloc(input, (line_len + 1) * sizeof(char*));
@@ -36,7 +37,7 @@ int main(void){
             debug = 0;
         }        
     }
-    printf("\n\tPart1: %lld\n", part1);   
+    printf("\n\tPart2: %lld\n", part1);   
     return 0;
 }
 
@@ -55,11 +56,16 @@ int get_vertical(char** input){
         transpose[i][vert_len] = 0;
     }
 
-    for(int i = 0; i < hori_len - 1; i++){
+    for(int i = 0; i < hori_len - 2; i++){
         int offset = 0;
-        while(!strcmp(transpose[i-offset], transpose[i + 1 + offset])){         
-            if(i-offset == 0 || i+offset+1 == hori_len - 2){
+        int d = 0;
+        //while(!strcmp(transpose[i-offset], transpose[i + 1 + offset])){
+        while( (d += strcmpd(transpose[i-offset], transpose[i + 1 + offset])) <= 1){           
+            if((i-offset == 0 || i+offset+1 == hori_len - 2) && d == 1){
                 return i + 1;
+            }
+            else if((i-offset == 0 || i+offset+1 == hori_len - 2) && d != 1){
+                break;
             }
             else if( (i-offset)>0 && (i+offset+1)<(hori_len - 2) ){
                 offset++; 
@@ -78,9 +84,14 @@ int get_horizental(char** input){
     for(int i = 0; i < vert_len - 1; i++){
         int offset = 0;
         int count = 0;
-        while(!strcmp(input[i - offset], input[i + 1 + offset])){                   
-            if(i-offset == 0 || i+offset+1 == vert_len - 1){
+        int d = 0;
+        //while(!strcmp(input[i - offset], input[i + 1 + offset])){ 
+        while((d += strcmpd(input[i - offset], input[i + 1 + offset])) <= 1){                 
+            if((i-offset == 0 || i+offset+1 == vert_len - 1) && d == 1){
                 return i + 1;
+            }
+            else if ((i-offset == 0 || i+offset+1 == vert_len - 1) && d != 1){
+                break;
             }
             else if( (i-offset)>0 && (i+offset+1)<(vert_len - 1) ){
                 offset++;
@@ -90,4 +101,15 @@ int get_horizental(char** input){
         }
     }
     return -1;
+}
+
+int strcmpd(char* str1, char* str2){
+    size_t len = strlen(str1);
+    int d = 0;
+    for(int i = 0; i < len; i++){
+        if(str1[i] != str2[i]){
+            d++;
+        }
+    }
+    return d;
 }
