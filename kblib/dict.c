@@ -74,3 +74,8 @@ void dict_free(dict_t dict) {
     free(dict->entry);
     free(dict);
 }
+
+int main(){
+    dict_t test = dict_new();
+    int test2 = 0;
+}

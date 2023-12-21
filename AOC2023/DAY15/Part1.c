@@ -1,7 +1,8 @@
 #include<stdio.h>
 #include<string.h>
 #include<stdlib.h>
-#include "dict.h"
+#include<dict.h>
+
 
 int hash_aoc(char* str);
 FILE* file;
@@ -9,13 +10,13 @@ char char_buffer = 0;
 char str_buffer[256] = {0};
 int main(){
 
-    dict_t test = dict_new;
-    dict_add(test, "index0", 120);
-    dict_add(test, "index1", 121);
-    dict_add(test, "index2", 122);
-    dict_add(test, "index3", 123);
+    dict_t test = dict_new();
+    // dict_add(test, "index0", 120);
+    // dict_add(test, "index1", 121);
+    // dict_add(test, "index2", 122);
+    // dict_add(test, "index3", 123);
 
-    dict_remove(test, "index2");
+    // dict_remove(test, "index2");
 
     file = fopen("input.txt", "r");
 
