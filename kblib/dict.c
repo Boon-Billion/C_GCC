@@ -44,6 +44,29 @@ int dict_add(dict_t dict, const char *key, long long value) {
    return 1;
 }
 
+int dict_remove(dict_t dict, const char *key){
+    long long idx = _dict_find_index(dict, key);
+    if (idx != -1) {
+       return 2;
+    }
+    if(dict->len > 1){
+        for (int i = idx; i < dict->len - 1; i++) {
+            free(dict->entry[i].key);
+            dict->entry[i].key = dict->entry[i+1].key;
+            dict->entry[i].value = dict->entry[i+1].value;
+            dict->len--;
+        }
+        return 1;
+    }
+    else{
+        free(dict->entry[idx].key);
+        dict->len--;
+        return 1;
+    }
+    return 0;
+    
+}
+
 void dict_free(dict_t dict) {
     for (int i = 0; i < dict->len; i++) {
         free((void*)dict->entry[i].key);
