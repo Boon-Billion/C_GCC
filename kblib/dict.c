@@ -2,7 +2,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-#include <dict.h>
+#include "dict.h"
 
 dict_t dict_new(void){
     dict_s proto = {0, 4, malloc(4 * sizeof(dict_entry_s))};
@@ -73,9 +73,4 @@ void dict_free(dict_t dict) {
     }
     free(dict->entry);
     free(dict);
-}
-
-int main(){
-    dict_t test = dict_new();
-    int test2 = 0;
 }
