@@ -3,7 +3,6 @@
 #include<stdlib.h>
 #include"dict.h"
 
-
 int hash_aoc(char* str);
 FILE* file;
 char char_buffer = 0;
