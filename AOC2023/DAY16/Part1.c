@@ -32,7 +32,7 @@ int main(){
     for(int i = 0; i < line_len; i++){
         printf("\t%s\n", input[i]);
     }
-    int point[2] = {1, 0}; 
+    int point[2] = {0, 0};
     int check = dfs(input, tag, point, 'R');
     return 0;
 }
@@ -75,8 +75,52 @@ int dfs(char** input, char** tag, int _point[2], char _direction){
     int line_len  = 0;
     while(input[++line_len]);
 
-    //if over limit
-    //if mirror prevous reflected
+    int x = point[0];
+    int y = point[1];
+    switch(tag[point[1]][point[0]]){
+    case '|':
+        switch(direction){
+        case 'U':
+            if(tag[y - 1][x] != ' '){return 0;}
+            break;
+        case 'D':
+            if(tag[y + 1][x] != ' '){
+                return 0;
+            }
+            break;
+
+        case 'L':
+        case 'R':
+            if(tag[y + 1][x] != ' ' && tag[y - 1][x] != ' '){
+                return 0;
+            }
+            break;
+        }
+
+    case '-':
+        switch(direction){
+        case 'L':
+            if(tag[y][x - 1] != ' '){
+                return 0;
+            }
+        break;
+
+        case 'R':
+            if(tag[y][x + 1] != ' '){
+                return 0;
+            }
+        break;
+
+        case 'U':
+        case 'D':
+            if(tag[y][x + 1] != ' ' && tag[y][x - 1] != ' '){
+                return 0;
+            }
+        break;
+        }
+    }
+    
+    
 
     int count = 0; 
     char new_dir = 0;
@@ -93,22 +137,25 @@ int dfs(char** input, char** tag, int _point[2], char _direction){
             if(input[point[1]][i] != '.'){
                 new_dir = new_direction(direction, input[point[1]][i]);
                 tag[point[1]][i] = input[point[1]][i]; //TODO TAG FN
-                point[0] = i;
-                printf("\n");
-                for(int i = 0; i < line_len; i++){
-                    printf("\t%s\n", tag[i]);
-                }               
+                point[0] = i;              
                 break;
             }
             else{
                 tag[point[1]][i] = '#';
                 point[0] = i;
+                if(i == str_len - 1){
+                    printf("\n");
+                    for(int i = 0; i < line_len; i++){
+                        printf("\t%s\n", tag[i]);
+                    }
+                    return 0;
+                }
             }
-            printf("\n");
-            for(int i = 0; i < line_len; i++){
-                printf("\t%s\n", tag[i]);
-            } 
         }
+        printf("\n");
+        for(int i = 0; i < line_len; i++){
+            printf("\t%s\n", tag[i]);
+        } 
         break;
     
     case 'L':
@@ -122,22 +169,25 @@ int dfs(char** input, char** tag, int _point[2], char _direction){
             if(input[point[1]][i] != '.'){
                 new_dir = new_direction(direction, input[point[1]][i]);
                 tag[point[1]][i] = input[point[1]][i]; //TODO TAG FN
-                point[0] = i;
-                printf("\n");
-                for(int i = 0; i < line_len; i++){
-                    printf("\t%s\n", tag[i]);
-                }               
+                point[0] = i;              
                 break;
             }
             else{
                 tag[point[1]][i] = '#';
                 point[0] = i;
+                if(i == 0){
+                    printf("\n");
+                    for(int i = 0; i < line_len; i++){
+                        printf("\t%s\n", tag[i]);
+                    }
+                    return 0;
+                }
             }
-            printf("\n");
-            for(int i = 0; i < line_len; i++){
-                printf("\t%s\n", tag[i]);
-            } 
         }
+        printf("\n");
+        for(int i = 0; i < line_len; i++){
+            printf("\t%s\n", tag[i]);
+        } 
         break;
 
     case 'D':
@@ -151,21 +201,24 @@ int dfs(char** input, char** tag, int _point[2], char _direction){
             if(input[i][point[0]] != '.'){
                 new_dir = new_direction(direction, input[i][point[0]]);
                 tag[i][point[0]] = input[i][point[0]]; //TODO TAG FN
-                point[1] = i;
-                printf("\n");
-                for(int i = 0; i < line_len; i++){
-                    printf("\t%s\n", tag[i]);
-                }               
+                point[1] = i;               
                 break;
             }
             else{
                 tag[i][point[0]] = '#';
                 point[1] = i;
-            }
-            printf("\n");
-            for(int i = 0; i < line_len; i++){
-                printf("\t%s\n", tag[i]);
+                if(i == line_len - 1){
+                    printf("\n");
+                    for(int i = 0; i < line_len; i++){
+                        printf("\t%s\n", tag[i]);
+                    }
+                    return 0;
+                }
             } 
+        }
+        printf("\n");
+        for(int i = 0; i < line_len; i++){
+            printf("\t%s\n", tag[i]);
         }
         break;
 
@@ -180,22 +233,25 @@ int dfs(char** input, char** tag, int _point[2], char _direction){
             if(input[i][point[0]] != '.'){
                 new_dir = new_direction(direction, input[i][point[0]]);
                 tag[i][point[0]] = input[i][point[0]]; //TODO TAG FN
-                point[1] = i;
-                printf("\n");
-                for(int i = 0; i < line_len; i++){
-                    printf("\t%s\n", tag[i]);
-                }               
+                point[1] = i;             
                 break;
             }
             else{
                 tag[i][point[0]] = '#';
                 point[1] = i;
+                if(i == 0){
+                    printf("\n");
+                    for(int i = 0; i < line_len; i++){
+                        printf("\t%s\n", tag[i]);
+                    }
+                    return 0;
+                }
             }
-            printf("\n");
-            for(int i = 0; i < line_len; i++){
-                printf("\t%s\n", tag[i]);
-            } 
         }
+        printf("\n");
+        for(int i = 0; i < line_len; i++){
+            printf("\t%s\n", tag[i]);
+        }  
         break;
 
     default:
