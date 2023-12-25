@@ -177,7 +177,6 @@ char new_direction(char direction, char mirror_type){
             else if(direction == 'R'){return 'D';}
             else if(direction == 'L'){return 'U';}
         break;
-
     }
 }
 
