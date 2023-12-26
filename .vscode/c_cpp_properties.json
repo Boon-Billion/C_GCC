@@ -4,7 +4,8 @@
             "name": "Win32",
             "includePath": [
                 "${workspaceFolder}/**",
-                "${workspaceFolder}/C_GCC/kblib"
+                "${workspaceFolder}/C_GCC/kblib",
+                "${workspaceFolder}/kblib"
             ],
             "defines": [
                 "_DEBUG",

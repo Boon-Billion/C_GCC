@@ -2,6 +2,7 @@
 #include<string.h>
 #include<stdlib.h>
 #include<math.h>
+#include<list.h>
 
 
 FILE* file;
@@ -28,35 +29,45 @@ int dijkstra(int** graph, point_t source){
 
 }
 
-typedef struct node{
-    int data;
-    struct node* next;
-}list_s, *list_t;
 
-
-list_t list_push(list_t list, int data){
-    if(list == 0){
-        list = malloc(sizeof(list_s));
-        list->data = data;
-        list->next = 0;
-        return list;
-    }
-    else{
-        list_t new_list = malloc(sizeof(list_s));
-        new_list->data = data;
-        new_list->next = list;
-        return new_list;
-    }
-}
 
 int main(){
 
-    list_t test = 0;
-    test = list_push(test, 10);
-    test = list_push(test, 20);
-    list_t test1 = 0;
-    test1 = list_push(test1, 100);
-    test1 = list_push(test1, 200);
+    queue_t test = queue_new();
+    enqueue(test, 10);
+    enqueue(test, 20);
+    enqueue(test, 30);
+    enqueue(test, 40);
+    enqueue(test, 50);
+    list_t proto = test->head;
+    for (int i = 0; i < test->size; i++){
+        int value = proto->data;
+        proto = proto->next;
+        printf("\t%d\n", value);
+    }
+
+    int value = dequeue(test);
+    value = dequeue(test);
+    value = dequeue(test);
+    value = dequeue(test);
+    value = dequeue(test);
+    value = dequeue(test);
+
+    proto = test->head;
+    for (int i = 0; i < test->size; i++){
+        int value = proto->data;
+        proto = proto->next;
+        printf("\t%d\n", value);
+    }
+
+    list_t test1 = list_new();
+    test1 = list_push(test1 , 10);
+    test1 = list_push(test1 , 20);
+    test1 = list_push(test1 , 30);
+    test1 = list_pop(test1);
+
+    
+
     int x_len = 0;
     int y_len = 0;
     file = fopen("input.txt", "r");
