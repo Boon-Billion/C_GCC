@@ -2,7 +2,7 @@
 #include<stdlib.h>
 #include<stdio.h>
 
-//TODO LIST_FREE, QUEUE_FREE
+//TODO LIST_FREE, QUEUE_FREE, PRIORITY_QUEUE
 
 list_t list_new(){
     list_t list = 0;
