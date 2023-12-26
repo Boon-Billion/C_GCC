@@ -2,6 +2,8 @@
 #include<stdlib.h>
 #include<stdio.h>
 
+//TODO LIST_FREE, QUEUE_FREE
+
 list_t list_new(){
     list_t list = 0;
     return list;
@@ -87,4 +89,8 @@ int dequeue(queue_t queue){
     }
     queue->size--;
     return value;
+}
+
+int size_queue(queue_t queue){
+    return queue->size;
 }

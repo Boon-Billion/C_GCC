@@ -19,3 +19,4 @@ queue_t queue_new();
 
 int enqueue(queue_t queue, int value);
 int dequeue(queue_t queue);
+int size_queue(queue_t queue);
