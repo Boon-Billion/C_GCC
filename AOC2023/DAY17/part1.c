@@ -19,6 +19,8 @@ typedef struct{
 typedef struct{
     int x;
     int y;
+    char direction;
+    int quota;
 }point_s, *point_t;
 
 typedef struct{
@@ -40,22 +42,22 @@ int main(){
     int y_len = 0;
     file = fopen("input.txt", "r");
     heatmap = malloc(sizeof(int*));
-    //info = malloc(sizeof(info_t*));
+    info = malloc(sizeof(info_t*));
 
     while(fgets(str_buffer, 256, file)){
         heatmap = realloc(heatmap, (y_len + 1) * sizeof(int*));
-        //info = realloc(info, (y_len + 1) * sizeof(info_t*));
+        info = realloc(info, (y_len + 1) * sizeof(info_t*));
 
         x_len = strlen(str_buffer);
         if(str_buffer[x_len - 1] == '\n'){x_len--;}
 
         heatmap[y_len] = malloc(x_len * sizeof(int));
-        //info[y_len] = malloc(x_len * sizeof(info_t));
+        info[y_len] = malloc(x_len * sizeof(info_t));
 
         for(int i = 0; i < x_len; i++){
             heatmap[y_len][i] = str_buffer[i] - 0x30;
-            //info[y_len][i].direction = 'N';
-            //info[y_len][i].quota = 0;
+            info[y_len][i].direction = 'N';
+            info[y_len][i].quota = 0;
         }
 
         y_len++;
@@ -77,17 +79,21 @@ int dijkstra(graph_t graph, point_t source){
         RIGHT
     };
     int directions[][2] = {{0, -1}, {0, 1}, {-1, 0}, {1, 0}}; // Up, Down, Left, Right
+    char directions_c[4] = {'^', 'v', '<', '>'}; 
     int x_len = graph.x_len;
     int y_len = graph.y_len;
     int** cost = malloc(y_len * sizeof(int*));
     int** visit = malloc(y_len * sizeof(int*));
+    char** direction = malloc(y_len * sizeof(char*));
 
     for(int i = 0; i < y_len; i++){
         cost[i] = malloc(x_len * sizeof(int));
         visit[i] = malloc(x_len * sizeof(int));
+        direction[i] = malloc(x_len * sizeof(char));
         for(int j = 0; j < x_len; j++){    
             cost[i][j] = 1000;
             visit[i][j] = 0;
+            direction[i][j] = 'n';
         }       
     }
 
@@ -114,18 +120,40 @@ int dijkstra(graph_t graph, point_t source){
             int x = point->x + directions[dir][0];
             int y = point->y + directions[dir][1];
 
+
             if (x >= 0 && x < x_len && y >= 0 && y < y_len) {
+                
                 int new_cost = graph.graph[y][x] + cost[point->y][point->x];
                 if (cost[y][x] > new_cost) {
-                    cost[y][x] = new_cost;                    
+
+                    if(info[point->y][point->x].direction != directions_c[dir]){
+                        info[y][x].direction = directions_c[dir];
+                        info[y][x].quota = 0;
+                    }
+                    else if(info[point->y][point->x].direction == directions_c[dir]){
+                        if(info[point->y][point->x].quota >= 2){
+                            continue;
+                        }
+                        else{
+                            info[y][x].direction = directions_c[dir];
+                            info[y][x].quota = info[point->y][point->x].quota + 1;
+                        }
+                    }
+                    
+
+                    cost[y][x] = new_cost;
+                    direction[y][x] = directions_c[dir];                    
                 }
+                
             }
         }
 
-        visit[point->y][point->x] = 1;
+        
+        //visit[point->y][point->x] = 1;
+        
         free(point);
         //print
-        if(priority_q->size == 0){
+        if(1){
             for(int i = 0; i < y_len; i++){
                 for (int j = 0; j < x_len; j++){
                     printf(" %d ", graph.graph[i][j]);
@@ -133,6 +161,10 @@ int dijkstra(graph_t graph, point_t source){
                 printf("\t\t");
                 for (int j = 0; j < x_len; j++){
                     printf(" %d ", visit[i][j]);
+                }
+                printf("\t\t");
+                for (int j = 0; j < x_len; j++){
+                    printf(" %c ", direction[i][j]);
                 }
                 
                 printf("\t\t");
