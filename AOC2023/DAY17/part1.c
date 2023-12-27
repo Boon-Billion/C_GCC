@@ -64,11 +64,19 @@ int main(){
     point_t point = malloc(sizeof(point_s));
     *point = (point_s){0, 0};
     dijkstra(graph, point);
-    free(point);
+    //free(point);
     return 0;
 }
 
 int dijkstra(graph_t graph, point_t source){
+    
+    enum Direction {
+        UP,
+        DOWN,
+        LEFT,
+        RIGHT
+    };
+    int directions[][2] = {{0, -1}, {0, 1}, {-1, 0}, {1, 0}}; // Up, Down, Left, Right
     int x_len = graph.x_len;
     int y_len = graph.y_len;
     int** cost = malloc(y_len * sizeof(int*));
@@ -94,51 +102,22 @@ int dijkstra(graph_t graph, point_t source){
             enqueue_p(priority_q, point, &cost[i][j]);
         }
     }
-    
+    int q = 0;
+    enqueue_p(priority_q, source, &q);
     while(priority_q->size){
         point_t point = dequeue_p(priority_q);
         if(visit[point->y][point->x] == 1){
             continue;
         }
-        if(point->y != 0){
-            int x = point->x;
-            int y = point->y - 1;
-            if(visit[y][x] == 0){
-                int new_cost = graph.graph[y][x] + cost[y + 1][x];             
-                if(cost[y][x] == -1 || cost[y][x] > new_cost){
-                    cost[y][x] = new_cost;
-                }
-            }
-        }
-        if(point->y != y_len - 1){
-            int x = point->x;
-            int y = point->y + 1;
-            if(visit[y][x] == 0){
-                int new_cost = graph.graph[y][x] + cost[y - 1][x];
-                if(cost[y][x] == -1 || cost[y][x] > new_cost){
-                    cost[y][x] = new_cost;
-                }
-            }
-        }
 
-        if(point->x != 0){
-            int x = point->x - 1;
-            int y = point->y;
-            if(visit[y][x] == 0){
-                int new_cost = graph.graph[y][x] + cost[y][x + 1];
-                if(cost[y][x] == -1 || cost[y][x] > new_cost){
-                    cost[y][x] = new_cost;
-                }
-            }
-        }
+        for (int dir = 0; dir < 4; ++dir) {
+            int x = point->x + directions[dir][0];
+            int y = point->y + directions[dir][1];
 
-        if(point->x != x_len - 1){
-            int x = point->x + 1;
-            int y = point->y;
-            if(visit[y][x] == 0){
-                int new_cost = graph.graph[y][x] + cost[y][x - 1];
-                if(cost[y][x] == -1 || cost[y][x] > new_cost){
-                    cost[y][x] = new_cost;
+            if (x >= 0 && x < x_len && y >= 0 && y < y_len) {
+                int new_cost = graph.graph[y][x] + cost[point->y][point->x];
+                if (cost[y][x] > new_cost) {
+                    cost[y][x] = new_cost;                    
                 }
             }
         }
