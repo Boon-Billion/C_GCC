@@ -6,7 +6,7 @@
 
 
 FILE* file;
-int** headmap = 0;
+int** heatmap = 0;
 int** distances = 0;
 
 char str_buffer[256] = {0};
@@ -19,93 +19,170 @@ typedef struct{
 typedef struct{
     int x;
     int y;
-}point_t;
+}point_s, *point_t;
+
+typedef struct{
+    int** graph;
+    int x_len;
+    int y_len;
+}graph_t;
 
 info_t** info = 0;
 int manhattan_distance(point_t a, point_t b){
-    return abs(a.x - b.x) + abs(a.y - b.y);
-}
-int dijkstra(int** graph, point_t source){
-
+    return abs(a->x - b->x) + abs(a->y - b->y);
 }
 
-
+int dijkstra(graph_t graph, point_t source);
 
 int main(){
-
-    queue_t test = queue_new();
-    enqueue(test, 10);
-    enqueue(test, 20);
-    enqueue(test, 30);
-    enqueue(test, 40);
-    enqueue(test, 50);
-    list_t proto = test->head;
-    for (int i = 0; i < test->size; i++){
-        int value = proto->data;
-        proto = proto->next;
-        printf("\t%d\n", value);
-    }
-
-    int value = dequeue(test);
-    value = dequeue(test);
-    value = dequeue(test);
-    value = dequeue(test);
-    value = dequeue(test);
-    value = dequeue(test);
-
-    proto = test->head;
-    for (int i = 0; i < test->size; i++){
-        int value = proto->data;
-        proto = proto->next;
-        printf("\t%d\n", value);
-    }
-
-    list_t test1 = list_new();
-    test1 = list_push(test1 , 10);
-    test1 = list_push(test1 , 20);
-    test1 = list_push(test1 , 30);
-    test1 = list_pop(test1);
-
-    
 
     int x_len = 0;
     int y_len = 0;
     file = fopen("input.txt", "r");
-    headmap = malloc(sizeof(int*));
-    distances = malloc(sizeof(int*));
-    info = malloc(sizeof(info_t*));
+    heatmap = malloc(sizeof(int*));
+    //info = malloc(sizeof(info_t*));
 
     while(fgets(str_buffer, 256, file)){
-        headmap = realloc(headmap, (y_len + 1) * sizeof(int*));
-        distances = realloc(distances, (y_len + 1) * sizeof(int*));
-        info = realloc(info, (y_len + 1) * sizeof(info_t*));
+        heatmap = realloc(heatmap, (y_len + 1) * sizeof(int*));
+        //info = realloc(info, (y_len + 1) * sizeof(info_t*));
 
         x_len = strlen(str_buffer);
         if(str_buffer[x_len - 1] == '\n'){x_len--;}
 
-        headmap[y_len] = malloc(x_len * sizeof(int));
-        distances[y_len] = malloc(x_len * sizeof(int));
-        info[y_len] = malloc(x_len * sizeof(info_t));
+        heatmap[y_len] = malloc(x_len * sizeof(int));
+        //info[y_len] = malloc(x_len * sizeof(info_t));
 
         for(int i = 0; i < x_len; i++){
-            headmap[y_len][i] = str_buffer[i] - 0x30;
-            distances[y_len][i] = -1;
-            info[y_len][i].direction = 'N';
-            info[y_len][i].quota = 0;
+            heatmap[y_len][i] = str_buffer[i] - 0x30;
+            //info[y_len][i].direction = 'N';
+            //info[y_len][i].quota = 0;
         }
 
         y_len++;
     }
+    graph_t graph = {heatmap, x_len, y_len};
+    point_t point = malloc(sizeof(point_s));
+    *point = (point_s){0, 0};
+    dijkstra(graph, point);
+    free(point);
+    return 0;
+}
 
+int dijkstra(graph_t graph, point_t source){
+    int x_len = graph.x_len;
+    int y_len = graph.y_len;
+    int** cost = malloc(y_len * sizeof(int*));
+    int** visit = malloc(y_len * sizeof(int*));
+
+    for(int i = 0; i < y_len; i++){
+        cost[i] = malloc(x_len * sizeof(int));
+        visit[i] = malloc(x_len * sizeof(int));
+        for(int j = 0; j < x_len; j++){    
+            cost[i][j] = 1000;
+            visit[i][j] = 0;
+        }       
+    }
+
+    queue_t priority_q = queue_new();
+    
+    cost[source->y][source->x] = 0;
     for (int i = 0; i < y_len; i++){
         for (int j = 0; j < x_len; j++){
-            printf(" %d ", headmap[i][j]);
+            point_t point = malloc(sizeof(point_s));
+            point->x = j;
+            point->y = i;
+            enqueue_p(priority_q, point, &cost[i][j]);
         }
-        printf("\t\t");
-        for (int j = 0; j < x_len; j++){
-            printf("%d ", distances[i][j]);
-        }
-        printf("\n");
     }
-    return 0;
+    
+    while(priority_q->size){
+        point_t point = dequeue_p(priority_q);
+        if(visit[point->y][point->x] == 1){
+            continue;
+        }
+        if(point->y != 0){
+            int x = point->x;
+            int y = point->y - 1;
+            if(visit[y][x] == 0){
+                int new_cost = graph.graph[y][x] + cost[y + 1][x];             
+                if(cost[y][x] == -1 || cost[y][x] > new_cost){
+                    cost[y][x] = new_cost;
+                }
+            }
+        }
+        if(point->y != y_len - 1){
+            int x = point->x;
+            int y = point->y + 1;
+            if(visit[y][x] == 0){
+                int new_cost = graph.graph[y][x] + cost[y - 1][x];
+                if(cost[y][x] == -1 || cost[y][x] > new_cost){
+                    cost[y][x] = new_cost;
+                }
+            }
+        }
+
+        if(point->x != 0){
+            int x = point->x - 1;
+            int y = point->y;
+            if(visit[y][x] == 0){
+                int new_cost = graph.graph[y][x] + cost[y][x + 1];
+                if(cost[y][x] == -1 || cost[y][x] > new_cost){
+                    cost[y][x] = new_cost;
+                }
+            }
+        }
+
+        if(point->x != x_len - 1){
+            int x = point->x + 1;
+            int y = point->y;
+            if(visit[y][x] == 0){
+                int new_cost = graph.graph[y][x] + cost[y][x - 1];
+                if(cost[y][x] == -1 || cost[y][x] > new_cost){
+                    cost[y][x] = new_cost;
+                }
+            }
+        }
+
+        visit[point->y][point->x] = 1;
+        free(point);
+        //print
+        if(priority_q->size == 0){
+            for(int i = 0; i < y_len; i++){
+                for (int j = 0; j < x_len; j++){
+                    printf(" %d ", graph.graph[i][j]);
+                }
+                printf("\t\t");
+                for (int j = 0; j < x_len; j++){
+                    printf(" %d ", visit[i][j]);
+                }
+                
+                printf("\t\t");
+                for (int j = 0; j < x_len; j++){
+                    if(cost[i][j]>=10){
+                        printf("%d ", cost[i][j]);
+                    }
+                    else if(cost[i][j]>=0){
+                        printf("%d  ", cost[i][j]);
+                    }
+                    
+                    else{
+                        printf("%d ", cost[i][j]);
+                    }
+                }
+                printf("\n");
+            }
+            printf("\n");
+            //print end
+        }
+        
+    }
+    for(int i = 0; i < y_len; i++){
+        free(cost[i]);
+        free(visit[i]);     
+    }
+    free(cost);
+    free(visit);
+
+
+
 }

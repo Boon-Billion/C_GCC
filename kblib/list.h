@@ -1,5 +1,6 @@
 typedef struct node{
-    int data;
+    void* data;
+    int* priority;
     struct node* next;
     struct node* previous;
 }list_s, *list_t;
@@ -17,6 +18,8 @@ typedef struct{
 
 queue_t queue_new();
 
-int enqueue(queue_t queue, int value);
+int enqueue(queue_t queue, void* value);
 int dequeue(queue_t queue);
 int size_queue(queue_t queue);
+int enqueue_p(queue_t queue, void* value, int* priority);
+void* dequeue_p(queue_t queue);
