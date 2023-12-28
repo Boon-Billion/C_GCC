@@ -135,10 +135,22 @@ int dijkstra(graph_t graph, m_mode_t source){
                 }
 
 
-                if(node->steps_remain != 0){
+                if(new_node->steps_remain != 0){
                     // if new_node exist, skip; dict
                     //point,direction,cost
                     //ie "1,2,3,10"
+                    if(new_node->direction == 0 && node->direction == 1){
+                        continue;
+                    }
+                    if(new_node->direction == 1 && node->direction == 0){
+                        continue;
+                    }
+                    if(new_node->direction == 2 && node->direction == 3){
+                        continue;
+                    }
+                    if(new_node->direction == 3 && node->direction == 2){
+                        continue;
+                    }
                     enqueue_p(queue, new_node, new_cost);
                 }
                 
@@ -156,12 +168,7 @@ int dijkstra(graph_t graph, m_mode_t source){
             for(int i = 0; i < y_len; i++){
                 for (int j = 0; j < x_len; j++){
                     printf(" %d ", graph.graph[i][j]);
-                }
-                printf("\t\t");
-                for (int j = 0; j < x_len; j++){
-                    printf(" %d ", visit[i][j]);
-                }
-                
+                }               
                 printf("\t\t");
                 for (int j = 0; j < x_len; j++){
                     if(cost[i][j]>=10){
