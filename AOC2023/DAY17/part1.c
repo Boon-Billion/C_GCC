@@ -12,15 +12,8 @@ int** distances = 0;
 char str_buffer[256] = {0};
 
 typedef struct{
-    char direction;
-    int quota;
-}info_t;
-
-typedef struct{
     int x;
     int y;
-    char direction;
-    int quota;
 }point_s, *point_t;
 
 typedef struct{
@@ -29,12 +22,17 @@ typedef struct{
     int y_len;
 }graph_t;
 
-info_t** info = 0;
 int manhattan_distance(point_t a, point_t b){
     return abs(a->x - b->x) + abs(a->y - b->y);
 }
 
-int dijkstra(graph_t graph, point_t source);
+typedef struct{
+    point_t point;
+    int direction;
+    int steps_remain;
+}m_node_s, *m_mode_t;
+
+int dijkstra(graph_t graph, m_mode_t source);
 
 int main(){
 
@@ -42,35 +40,32 @@ int main(){
     int y_len = 0;
     file = fopen("input.txt", "r");
     heatmap = malloc(sizeof(int*));
-    info = malloc(sizeof(info_t*));
 
     while(fgets(str_buffer, 256, file)){
         heatmap = realloc(heatmap, (y_len + 1) * sizeof(int*));
-        info = realloc(info, (y_len + 1) * sizeof(info_t*));
 
         x_len = strlen(str_buffer);
         if(str_buffer[x_len - 1] == '\n'){x_len--;}
 
         heatmap[y_len] = malloc(x_len * sizeof(int));
-        info[y_len] = malloc(x_len * sizeof(info_t));
 
         for(int i = 0; i < x_len; i++){
             heatmap[y_len][i] = str_buffer[i] - 0x30;
-            info[y_len][i].direction = 'N';
-            info[y_len][i].quota = 0;
         }
 
         y_len++;
     }
     graph_t graph = {heatmap, x_len, y_len};
+    m_mode_t node = malloc(sizeof(m_node_s));
     point_t point = malloc(sizeof(point_s));
-    *point = (point_s){0, 0};
-    dijkstra(graph, point);
+    *point = (point_s){0, 0}; 
+    *node = (m_node_s){point, 'n', 3};
+    dijkstra(graph, node);
     //free(point);
     return 0;
 }
 
-int dijkstra(graph_t graph, point_t source){
+int dijkstra(graph_t graph, m_mode_t source){
     
     enum Direction {
         UP,
@@ -79,79 +74,83 @@ int dijkstra(graph_t graph, point_t source){
         RIGHT
     };
     int directions[][2] = {{0, -1}, {0, 1}, {-1, 0}, {1, 0}}; // Up, Down, Left, Right
-    char directions_c[4] = {'^', 'v', '<', '>'}; 
     int x_len = graph.x_len;
     int y_len = graph.y_len;
     int** cost = malloc(y_len * sizeof(int*));
     int** visit = malloc(y_len * sizeof(int*));
-    char** direction = malloc(y_len * sizeof(char*));
 
     for(int i = 0; i < y_len; i++){
         cost[i] = malloc(x_len * sizeof(int));
         visit[i] = malloc(x_len * sizeof(int));
-        direction[i] = malloc(x_len * sizeof(char));
         for(int j = 0; j < x_len; j++){    
             cost[i][j] = 1000;
             visit[i][j] = 0;
-            direction[i][j] = 'n';
         }       
     }
 
-    queue_t priority_q = queue_new();
-    
-    cost[source->y][source->x] = 0;
-    for (int i = 0; i < y_len; i++){
-        for (int j = 0; j < x_len; j++){
-            point_t point = malloc(sizeof(point_s));
-            point->x = j;
-            point->y = i;
-            enqueue_p(priority_q, point, &cost[i][j]);
-        }
-    }
-    int q = 0;
-    enqueue_p(priority_q, source, &q);
-    while(priority_q->size){
-        point_t point = dequeue_p(priority_q);
-        if(visit[point->y][point->x] == 1){
-            continue;
-        }
+    queue_t queue = queue_new(); 
+    enqueue_p(queue, source, 0);
+    cost[source->point->y][source->point->x] = 0;
+    // for (int i = 0; i < y_len; i++){
+    //     for (int j = 0; j < x_len; j++){
+    //         point_t point = malloc(sizeof(point_s));
+    //         point->x = j;
+    //         point->y = i;
+    //         enqueue_p(queue, point, &cost[i][j]);
+    //     }
+    // }
+    //int q = 0;
+    //enqueue_p(queue, source, &q);
+
+
+    while(queue->size){
+        m_mode_t node = dequeue_p(queue);
+        int x = node->point->x;
+        int y = node->point->y;
+        // if(visit[point->y][point->x] == 1){
+        //     continue;
+        // }
 
         for (int dir = 0; dir < 4; ++dir) {
-            int x = point->x + directions[dir][0];
-            int y = point->y + directions[dir][1];
+            int dx = x + directions[dir][0];
+            int dy = y + directions[dir][1];
+            if(dx == dy && dx == 0){
+                continue;
+            }
+            if (dx >= 0 && dx < x_len && dy >= 0 && dy < y_len) {
+                int new_cost = cost[y][x] + graph.graph[dy][dx];
+
+                point_t new_point = malloc(sizeof(point_s));
+                new_point->x = dx;
+                new_point->y = dy;
+
+                m_mode_t new_node = malloc(sizeof(m_node_s));
+                new_node->direction = dir;
+                new_node->point = new_point;
+                if(node->direction == new_node->direction){
+                    new_node->steps_remain = node->steps_remain - 1;
+                }
+                else{
+                    new_node->steps_remain = 3;
+                }
 
 
-            if (x >= 0 && x < x_len && y >= 0 && y < y_len) {
-                
-                int new_cost = graph.graph[y][x] + cost[point->y][point->x];
-                if (cost[y][x] > new_cost) {
-
-                    if(info[point->y][point->x].direction != directions_c[dir]){
-                        info[y][x].direction = directions_c[dir];
-                        info[y][x].quota = 0;
-                    }
-                    else if(info[point->y][point->x].direction == directions_c[dir]){
-                        if(info[point->y][point->x].quota >= 2){
-                            continue;
-                        }
-                        else{
-                            info[y][x].direction = directions_c[dir];
-                            info[y][x].quota = info[point->y][point->x].quota + 1;
-                        }
-                    }
-                    
-
-                    cost[y][x] = new_cost;
-                    direction[y][x] = directions_c[dir];                    
+                if(node->steps_remain != 0){
+                    // if new_node exist, skip; dict
+                    //point,direction,cost
+                    //ie "1,2,3,10"
+                    enqueue_p(queue, new_node, new_cost);
                 }
                 
+                if (cost[dy][dx] > new_cost) {
+                    cost[dy][dx] = new_cost;                    
+                }
             }
         }
 
-        
-        //visit[point->y][point->x] = 1;
-        
-        free(point);
+        //visit[y][x] = 1;
+        free(node->point);
+        free(node);
         //print
         if(1){
             for(int i = 0; i < y_len; i++){
@@ -161,10 +160,6 @@ int dijkstra(graph_t graph, point_t source){
                 printf("\t\t");
                 for (int j = 0; j < x_len; j++){
                     printf(" %d ", visit[i][j]);
-                }
-                printf("\t\t");
-                for (int j = 0; j < x_len; j++){
-                    printf(" %c ", direction[i][j]);
                 }
                 
                 printf("\t\t");
@@ -187,7 +182,7 @@ int dijkstra(graph_t graph, point_t source){
         }
         
     }
-    for(int i = 0; i < y_len; i++){
+    for(int i = 0; i < y_len; i++){ 
         free(cost[i]);
         free(visit[i]);     
     }

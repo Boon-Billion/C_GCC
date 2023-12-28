@@ -95,7 +95,7 @@ int size_queue(queue_t queue){
     return queue->size;
 }
 
-int enqueue_p(queue_t queue, void* value, int* priority){  
+int enqueue_p(queue_t queue, void* value, int priority){  
     list_t new_list = malloc(sizeof(list_s));
     new_list->data = value;
     new_list->priority = priority;
@@ -119,10 +119,15 @@ void* dequeue_p(queue_t queue){
         fprintf(stderr, "Queue Empty\n");
         exit(EXIT_FAILURE);
     }
+    
     list_t list = queue->head;
     list_t highest_priority = list;
     for(int i = 0; i < queue->size; i++){
-        if(*highest_priority->priority > *list->priority){
+        if(queue->size == 1){
+            highest_priority = list;
+            break;
+        }
+        if(highest_priority->priority > list->priority){
             highest_priority = list;
         }
         list = list->next;
